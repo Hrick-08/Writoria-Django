@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Help Center - Writoria{% endblock %}
+
+{% block extra_css %}
+<style>
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
+    .success-toast {
+        background-color: var(--success-color);
+        border-color: rgba(16, 185, 129, 0.2);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <!-- Contact Form Section -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="mb-4 text-center">Send Us a Message</h2>
+                    
+                    <!-- Contact Information -->
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h3 class="h5 mb-3">Contact Information</h3>
+                        <p class="mb-2"><i class="fas fa-phone me-2"></i><strong>Phone:</strong> 1-888-963-8944 <span class="text-muted">(Mon-Fri, 9am-5pm IST)</span></p>
+                        <p class="mb-0"><i class="fas fa-envelope me-2"></i><strong>Email:</strong> support@writoria.com <span class="text-muted">(Expect a reply within 24-48 hours)</span></p>
+                    </div>
+
+                    <form id="contactForm" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject (Optional)</label>
+                            <input type="text" class="form-control" id="subject" name="subject">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contactForm');
+    const toast = document.querySelector('.toast');
+    const toastInstance = new bootstrap.Toast(toast);
+    const toastBody = toast.querySelector('.toast-body');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        fetch('', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            toastBody.textContent = data.message;
+            toastInstance.show();
+            
+            if (data.status === 'success') {
+                form.reset();
+            }
+        })
+        .catch(error => {
+            toastBody.textContent = 'An error occurred. Please try again.';
+            toastInstance.show();
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
